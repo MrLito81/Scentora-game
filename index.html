@@ -731,6 +731,121 @@
     transition: all 0.2s;
   }
   #btn-restart:hover { background: rgba(255,208,122,0.08); letter-spacing: 0.3em; }
+
+  /* ── LEADERBOARD ── */
+  #game-over .go-layout {
+    display: flex;
+    gap: 32px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  #game-over .go-left { display: flex; flex-direction: column; gap: 10px; }
+  #name-row {
+    display: flex;
+    gap: 0;
+    border: 1px solid var(--gold);
+    overflow: hidden;
+  }
+  #player-name {
+    background: none;
+    border: none;
+    outline: none;
+    color: var(--cream);
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 1rem;
+    letter-spacing: 0.12em;
+    padding: 10px 14px;
+    flex: 1;
+    min-width: 0;
+  }
+  #player-name::placeholder { color: var(--text-dim); }
+  #btn-save-score {
+    background: rgba(255,208,122,0.08);
+    border: none;
+    border-left: 1px solid var(--gold);
+    color: var(--gold);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.85rem;
+    letter-spacing: 0.15em;
+    padding: 10px 16px;
+    cursor: pointer;
+    transition: background 0.2s;
+    white-space: nowrap;
+  }
+  #btn-save-score:hover { background: rgba(255,208,122,0.18); }
+  #btn-save-score:disabled { opacity: 0.4; cursor: default; }
+
+  /* Leaderboard panel */
+  .lb-panel {
+    min-width: 260px;
+    max-width: 320px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .lb-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.3em;
+    color: var(--gold);
+    text-transform: uppercase;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--panel-border);
+  }
+  .lb-empty {
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+    font-style: italic;
+    text-align: center;
+    padding: 10px 0;
+  }
+  .lb-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 10px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--panel-border);
+    transition: background 0.2s;
+    font-size: 0.78rem;
+  }
+  .lb-row.lb-me { border-color: rgba(255,208,122,0.35); background: rgba(255,208,122,0.04); }
+  .lb-rank {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1rem;
+    color: var(--text-dim);
+    min-width: 22px;
+    text-align: right;
+  }
+  .lb-row:nth-child(2) .lb-rank { color: #FFD700; }
+  .lb-row:nth-child(3) .lb-rank { color: #C0C0C0; }
+  .lb-row:nth-child(4) .lb-rank { color: #CD7F32; }
+  .lb-name {
+    flex: 1;
+    color: var(--cream);
+    letter-spacing: 0.06em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .lb-score {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1rem;
+    color: var(--gold);
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+  .lb-tier { font-size: 0.85rem; }
+  #lb-loading {
+    font-size: 0.68rem;
+    color: var(--text-dim);
+    letter-spacing: 0.15em;
+    text-align: center;
+    animation: timer-pulse 1.2s ease-in-out infinite;
+  }
 </style>
 </head>
 <body>
@@ -751,13 +866,26 @@
 <div id="game-over">
   <div class="go-title">Temps écoulé</div>
   <div class="go-sub">— Résultat de la partie —</div>
-  <div class="go-scores">
-    <div class="go-row"><span class="gl">Bougies totales</span><span class="gv" id="go-total">0</span></div>
-    <div class="go-row"><span class="gl">Clics totaux</span><span class="gv" id="go-clicks">0</span></div>
-    <div class="go-row"><span class="gl">Bougies / sec max</span><span class="gv" id="go-cps">0</span></div>
-    <div class="go-row"><span class="gl">Palier atteint</span><span class="gv" id="go-tier">Naturelle</span></div>
+  <div class="go-layout">
+    <div class="go-left">
+      <div class="go-scores">
+        <div class="go-row"><span class="gl">Bougies totales</span><span class="gv" id="go-total">0</span></div>
+        <div class="go-row"><span class="gl">Clics totaux</span><span class="gv" id="go-clicks">0</span></div>
+        <div class="go-row"><span class="gl">Bougies / sec max</span><span class="gv" id="go-cps">0</span></div>
+        <div class="go-row"><span class="gl">Palier atteint</span><span class="gv" id="go-tier">Naturelle</span></div>
+      </div>
+      <div id="name-row">
+        <input id="player-name" type="text" maxlength="20" placeholder="Votre prénom…" autocomplete="off" />
+        <button id="btn-save-score">Sauvegarder</button>
+      </div>
+      <button id="btn-restart">↺ Rejouer</button>
+    </div>
+    <div class="lb-panel">
+      <div class="lb-title">Classement — Top 10</div>
+      <div id="lb-loading">Chargement…</div>
+      <div id="lb-list"></div>
+    </div>
   </div>
-  <button id="btn-restart">↺ Rejouer</button>
 </div>
 
 <div class="layout">
@@ -1478,7 +1606,6 @@ function formatTime(s) {
 function endGame() {
   gameRunning = false;
 
-  // Remplir le score final
   const tier = getActiveTier();
   document.getElementById('go-total').textContent  = fmt(g.totalCookies);
   document.getElementById('go-clicks').textContent = fmt(g.totalClicks);
@@ -1489,6 +1616,8 @@ function endGame() {
   timerDisplay.textContent = '0:00';
   timerDisplay.classList.remove('warning','danger');
   timerDisplay.classList.add('danger');
+
+  loadLeaderboard();
 }
 
 const timerInterval = setInterval(() => {
@@ -1497,11 +1626,9 @@ const timerInterval = setInterval(() => {
   timerDisplay.textContent = formatTime(timeLeft);
   timerBar.style.width = (timeLeft / GAME_DURATION * 100) + '%';
 
-  // Mise à jour max cps
   const curCps = cps();
   if (curCps > maxCps) maxCps = curCps;
 
-  // Couleurs d'alerte
   if (timeLeft <= 30 && timeLeft > 10) {
     timerDisplay.classList.add('warning');
     timerBar.style.background = '#FF8040';
@@ -1511,12 +1638,112 @@ const timerInterval = setInterval(() => {
     timerDisplay.classList.add('danger');
     timerBar.style.background = '#FF4040';
   }
-
   if (timeLeft <= 0) {
     clearInterval(timerInterval);
     endGame();
   }
 }, 1000);
+
+// ── Leaderboard (stockage partage) ───────────────────────────────────
+const LB_KEY = 'scentora-leaderboard-v1';
+
+async function loadLeaderboard() {
+  const lbList    = document.getElementById('lb-list');
+  const lbLoading = document.getElementById('lb-loading');
+  lbList.innerHTML = '';
+  lbLoading.style.display = 'block';
+
+  let scores = [];
+  try {
+    const result = await window.storage.get(LB_KEY, true);
+    scores = result ? JSON.parse(result.value) : [];
+  } catch(e) {
+    scores = [];
+  }
+  lbLoading.style.display = 'none';
+  renderLeaderboard(scores, null);
+}
+
+function renderLeaderboard(scores, myId) {
+  const lbList = document.getElementById('lb-list');
+  lbList.innerHTML = '';
+  if (!scores.length) {
+    lbList.innerHTML = '<div class="lb-empty">Soyez le premier a jouer !</div>';
+    return;
+  }
+  scores
+    .sort((a, b) => b.total - a.total)
+    .slice(0, 10)
+    .forEach((s, i) => {
+      const row = document.createElement('div');
+      row.className = 'lb-row' + (s.id === myId ? ' lb-me' : '');
+      const medals = ['', '1st', '2nd', '3rd'];
+      const rank = i < 3 ? ['🥇','🥈','🥉'][i] : (i + 1) + '.';
+      row.innerHTML =
+        '<span class="lb-rank">' + rank + '</span>' +
+        '<span class="lb-name">' + escHtml(s.name) + '</span>' +
+        '<span class="lb-tier">' + (s.tierIcon || '') + '</span>' +
+        '<span class="lb-score">' + fmt(s.total) + '</span>';
+      lbList.appendChild(row);
+    });
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+document.getElementById('btn-save-score').addEventListener('click', async () => {
+  const nameEl = document.getElementById('player-name');
+  const btn    = document.getElementById('btn-save-score');
+  let name = nameEl.value.trim();
+  if (!name) { nameEl.focus(); toast('Entrez votre prenom !'); return; }
+  if (name.length > 20) name = name.slice(0, 20);
+
+  btn.disabled = true;
+  btn.textContent = '…';
+
+  const tier = getActiveTier();
+  const tierIcon = tier.name ? tier.name.split(' ')[0] : '';
+  const myId = Date.now() + '-' + Math.random().toString(36).slice(2, 7);
+  const myEntry = {
+    id: myId,
+    name,
+    total: Math.floor(g.totalCookies),
+    clicks: g.totalClicks,
+    cps: Math.floor(maxCps),
+    tier: tier.name || 'Naturelle',
+    tierIcon,
+    date: new Date().toISOString().slice(0, 10),
+  };
+
+  let scores = [];
+  try {
+    const result = await window.storage.get(LB_KEY, true);
+    scores = result ? JSON.parse(result.value) : [];
+  } catch(e) { scores = []; }
+
+  scores.push(myEntry);
+  // Garder max 200 entrees, garder les meilleures
+  scores.sort((a, b) => b.total - a.total);
+  if (scores.length > 200) scores = scores.slice(0, 200);
+
+  try {
+    await window.storage.set(LB_KEY, JSON.stringify(scores), true);
+    btn.textContent = 'Sauvegarde !';
+    nameEl.disabled = true;
+    renderLeaderboard(scores, myId);
+
+    // Scroll to player's row
+    setTimeout(() => {
+      const me = document.querySelector('.lb-me');
+      if (me) me.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 200);
+  } catch(e) {
+    btn.textContent = 'Erreur';
+    btn.disabled = false;
+    toast('Erreur de sauvegarde');
+  }
+});
 
 // Bouton rejouer
 document.getElementById('btn-restart').addEventListener('click', () => {

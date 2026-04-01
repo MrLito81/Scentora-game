@@ -209,18 +209,131 @@
     -webkit-tap-highlight-color: transparent;
     padding: 10px;
     transition: transform 0.1s ease;
+    perspective: 600px;
+    transform-style: preserve-3d;
   }
 
   #candle-btn:active { transform: scale(0.95); }
+
+  #candle-3d-wrap {
+    transform-style: preserve-3d;
+    transition: transform 0.08s ease-out;
+    will-change: transform;
+  }
 
   .candle-svg {
     width: 140px;
     filter: drop-shadow(0 0 20px rgba(255,208,122,0.25)) drop-shadow(0 20px 40px rgba(0,0,0,0.8));
     transition: filter 0.2s;
+    transform-style: preserve-3d;
   }
 
   #candle-btn:hover .candle-svg {
     filter: drop-shadow(0 0 35px rgba(255,208,122,0.5)) drop-shadow(0 20px 40px rgba(0,0,0,0.8));
+  }
+
+  /* Ritual mode 3D spin */
+  @keyframes ritual-spin {
+    0%   { transform: rotateY(0deg) rotateX(0deg); }
+    25%  { transform: rotateY(90deg) rotateX(15deg); }
+    50%  { transform: rotateY(180deg) rotateX(0deg); }
+    75%  { transform: rotateY(270deg) rotateX(-15deg); }
+    100% { transform: rotateY(360deg) rotateX(0deg); }
+  }
+  .ritual-mode #candle-3d-wrap {
+    animation: ritual-spin 1.2s cubic-bezier(0.4,0,0.2,1) forwards;
+  }
+
+  /* Crying candle (idle easter egg) */
+  @keyframes wax-tear {
+    0%   { transform: translateY(0) scaleY(0); opacity: 0.9; }
+    100% { transform: translateY(80px) scaleY(3); opacity: 0; }
+  }
+  .wax-tear {
+    position: absolute;
+    width: 3px;
+    border-radius: 0 0 3px 3px;
+    background: rgba(255,208,122,0.6);
+    pointer-events: none;
+    z-index: 10;
+    animation: wax-tear 1.8s ease-in forwards;
+    transform-origin: top center;
+  }
+
+  /* Konami rain */
+  @keyframes konami-fall {
+    0%   { transform: translateY(-30px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+  }
+  .konami-candle {
+    position: fixed;
+    font-size: 2rem;
+    pointer-events: none;
+    z-index: 9999;
+    animation: konami-fall linear forwards;
+  }
+
+  /* Ghost skull easter egg */
+  @keyframes skull-drift {
+    0%   { transform: translateX(-80px) translateY(0px) scale(0.5); opacity: 0; }
+    10%  { opacity: 0.85; transform: translateX(0px) translateY(-10px) scale(1); }
+    50%  { transform: translateX(50vw) translateY(20px) scale(1.1) rotate(-5deg); }
+    90%  { opacity: 0.85; }
+    100% { transform: translateX(110vw) translateY(-30px) scale(0.6); opacity: 0; }
+  }
+  .skull-ghost {
+    position: fixed;
+    top: 45%;
+    left: 0;
+    font-size: 4rem;
+    pointer-events: none;
+    z-index: 9999;
+    filter: drop-shadow(0 0 20px rgba(255,100,50,0.8));
+    animation: skull-drift 4s ease-in-out forwards;
+  }
+
+  /* SCENTORA secret sparkle */
+  @keyframes logo-secret {
+    0%   { letter-spacing: 0.35em; color: var(--cream); }
+    30%  { letter-spacing: 0.8em; color: var(--gold); text-shadow: 0 0 20px rgba(255,208,122,0.9); }
+    70%  { letter-spacing: 0.8em; color: var(--gold); }
+    100% { letter-spacing: 0.35em; color: var(--cream); }
+  }
+  .logo-secret-anim { animation: logo-secret 1.5s ease-in-out; }
+
+  /* Easter egg message overlay */
+  #easter-msg {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.8);
+    background: rgba(17,17,17,0.97);
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 1.4rem;
+    letter-spacing: 0.15em;
+    padding: 28px 44px;
+    z-index: 9998;
+    opacity: 0;
+    pointer-events: none;
+    text-align: center;
+    transition: all 0.4s cubic-bezier(0.34,1.56,0.64,1);
+    max-width: 90vw;
+  }
+  #easter-msg.show {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  #easter-msg .e-sub {
+    display: block;
+    font-size: 0.7rem;
+    letter-spacing: 0.3em;
+    color: var(--silver);
+    font-style: normal;
+    margin-top: 8px;
+    font-family: 'Raleway', sans-serif;
   }
 
   #flame { transform-origin: 50% 100%; animation: flicker 1.8s ease-in-out infinite; }
@@ -496,6 +609,128 @@
     .shop-panel { width: 100%; border-left: none; border-top: 1px solid var(--panel-border); max-height: 340px; }
     .candle-svg { width: 110px; }
   }
+
+  /* ── CHRONOMÈTRE ── */
+  #timer-block {
+    position: absolute;
+    left: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+  }
+  #timer-display {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: 2rem;
+    letter-spacing: 0.1em;
+    color: var(--cream);
+    line-height: 1;
+    transition: color 0.4s;
+  }
+  #timer-display.warning { color: #FF8040; animation: timer-pulse 0.8s ease-in-out infinite; }
+  #timer-display.danger  { color: #FF4040; animation: timer-pulse 0.4s ease-in-out infinite; }
+  @keyframes timer-pulse {
+    0%,100% { opacity: 1; } 50% { opacity: 0.4; }
+  }
+  #timer-label {
+    font-size: 0.55rem;
+    letter-spacing: 0.35em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+  }
+  #timer-bar-wrap {
+    width: 80px;
+    height: 2px;
+    background: var(--panel-border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  #timer-bar {
+    height: 100%;
+    width: 100%;
+    background: var(--gold);
+    border-radius: 2px;
+    transition: width 1s linear, background 0.4s;
+    transform-origin: left;
+  }
+
+  /* ── OVERLAY FIN DE PARTIE ── */
+  #game-over {
+    position: fixed;
+    inset: 0;
+    background: rgba(10,10,10,0.92);
+    z-index: 5000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.6s ease;
+    backdrop-filter: blur(4px);
+  }
+  #game-over.show { opacity: 1; pointer-events: all; }
+  #game-over .go-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: clamp(2rem, 6vw, 3.5rem);
+    letter-spacing: 0.3em;
+    color: var(--gold);
+    text-transform: uppercase;
+    text-shadow: 0 0 40px rgba(255,208,122,0.5);
+  }
+  #game-over .go-sub {
+    font-size: 0.65rem;
+    letter-spacing: 0.4em;
+    color: var(--silver);
+    text-transform: uppercase;
+  }
+  #game-over .go-scores {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 10px 0;
+    min-width: 260px;
+  }
+  #game-over .go-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 9px 18px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--panel-border);
+    font-size: 0.8rem;
+  }
+  #game-over .go-row .gl { color: var(--text-dim); letter-spacing: 0.08em; }
+  #game-over .go-row .gv {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    color: var(--gold);
+    letter-spacing: 0.05em;
+  }
+  #game-over .go-tier {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 1rem;
+    color: var(--silver);
+    letter-spacing: 0.1em;
+  }
+  #btn-restart {
+    margin-top: 8px;
+    background: none;
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 1rem;
+    letter-spacing: 0.2em;
+    padding: 12px 36px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  #btn-restart:hover { background: rgba(255,208,122,0.08); letter-spacing: 0.3em; }
 </style>
 </head>
 <body>
@@ -506,7 +741,24 @@
     <div class="logo-sub">La Neuveville</div>
   </div>
   <div class="header-tagline">Candle Clicker</div>
+  <div id="timer-block">
+    <div id="timer-display">3:00</div>
+    <div id="timer-label">Chrono</div>
+    <div id="timer-bar-wrap"><div id="timer-bar"></div></div>
+  </div>
 </header>
+
+<div id="game-over">
+  <div class="go-title">Temps écoulé</div>
+  <div class="go-sub">— Résultat de la partie —</div>
+  <div class="go-scores">
+    <div class="go-row"><span class="gl">Bougies totales</span><span class="gv" id="go-total">0</span></div>
+    <div class="go-row"><span class="gl">Clics totaux</span><span class="gv" id="go-clicks">0</span></div>
+    <div class="go-row"><span class="gl">Bougies / sec max</span><span class="gv" id="go-cps">0</span></div>
+    <div class="go-row"><span class="gl">Palier atteint</span><span class="gv" id="go-tier">Naturelle</span></div>
+  </div>
+  <button id="btn-restart">↺ Rejouer</button>
+</div>
 
 <div class="layout">
 
@@ -537,6 +789,7 @@
   <div class="center-panel" id="center-panel">
     <canvas id="bg-canvas"></canvas>
     <button id="candle-btn" title="Allumer une bougie">
+      <div id="candle-3d-wrap">
       <svg class="candle-svg" viewBox="0 0 140 260" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <radialGradient id="waxGrad" cx="35%" cy="30%" r="70%">
@@ -579,6 +832,7 @@
         <text x="70" y="175" font-family="Georgia,serif" font-size="4.5" letter-spacing="2" fill="#3F3F3F" text-anchor="middle" opacity="0.5">LA NEUVEVILLE</text>
         <ellipse id="wax-base" cx="70" cy="226" rx="38" ry="8" fill="#C0C0B0"/>
       </svg>
+      </div>
     </button>
     <div class="cps-display"><em id="cps-display">0</em> bougie / sec</div>
     <div class="click-hint">Cliquez pour allumer</div>
@@ -598,8 +852,13 @@
 </div>
 
 <div id="toast"></div>
+<div id="easter-msg"><span id="easter-text"></span><span class="e-sub" id="easter-sub"></span></div>
 
 <script>
+// ── État global du jeu ────────────────────────────────────────────────
+let gameRunning = true;
+let maxCps = 0;
+
 // ── Paliers de couleur de cire ────────────────────────────────────────
 // Score = clics totaux + (bougies/sec × 10)  — récompense autant l'actif que le passif
 const WAX_TIERS = [
@@ -1102,6 +1361,7 @@ window._sparkBurst = burstSparks;
 // ─────────────────────────────────────────────────────────────────────
 
 btn.addEventListener('click', (e) => {
+  if (!gameRunning) return; // jeu terminé
   g.cookies += g.cpc; g.totalCookies += g.cpc; g.totalClicks++;
   updateWaxColor();
 
@@ -1167,6 +1427,7 @@ btn.addEventListener('click', (e) => {
 
 let tickCount = 0;
 setInterval(() => {
+  if (!gameRunning) return; // jeu terminé
   const v = cps();
   if (v > 0) {
     const gained = v / 20;
@@ -1192,6 +1453,231 @@ function toast(msg) {
 }
 
 render();
+
+// ── Bloquer la touche Enter (anti-cheat) ─────────────────────────────
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' || e.keyCode === 13) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
+}, true);
+
+// ── Chronomètre 3 minutes ─────────────────────────────────────────────
+const GAME_DURATION = 180;
+let timeLeft = GAME_DURATION;
+
+const timerDisplay = document.getElementById('timer-display');
+const timerBar     = document.getElementById('timer-bar');
+
+function formatTime(s) {
+  const m = Math.floor(s / 60);
+  const sec = s % 60;
+  return m + ':' + String(sec).padStart(2, '0');
+}
+
+function endGame() {
+  gameRunning = false;
+
+  // Remplir le score final
+  const tier = getActiveTier();
+  document.getElementById('go-total').textContent  = fmt(g.totalCookies);
+  document.getElementById('go-clicks').textContent = fmt(g.totalClicks);
+  document.getElementById('go-cps').textContent    = fmt(maxCps);
+  document.getElementById('go-tier').textContent   = tier.name ? tier.name : 'Naturelle';
+
+  document.getElementById('game-over').classList.add('show');
+  timerDisplay.textContent = '0:00';
+  timerDisplay.classList.remove('warning','danger');
+  timerDisplay.classList.add('danger');
+}
+
+const timerInterval = setInterval(() => {
+  if (!gameRunning) return;
+  timeLeft--;
+  timerDisplay.textContent = formatTime(timeLeft);
+  timerBar.style.width = (timeLeft / GAME_DURATION * 100) + '%';
+
+  // Mise à jour max cps
+  const curCps = cps();
+  if (curCps > maxCps) maxCps = curCps;
+
+  // Couleurs d'alerte
+  if (timeLeft <= 30 && timeLeft > 10) {
+    timerDisplay.classList.add('warning');
+    timerBar.style.background = '#FF8040';
+  }
+  if (timeLeft <= 10) {
+    timerDisplay.classList.remove('warning');
+    timerDisplay.classList.add('danger');
+    timerBar.style.background = '#FF4040';
+  }
+
+  if (timeLeft <= 0) {
+    clearInterval(timerInterval);
+    endGame();
+  }
+}, 1000);
+
+// Bouton rejouer
+document.getElementById('btn-restart').addEventListener('click', () => {
+  location.reload();
+});
+
+// ══════════════════════════════════════════════════════════════
+(function init3DTilt() {
+  const wrap3d = document.getElementById('candle-3d-wrap');
+  const centerPanel = document.getElementById('center-panel');
+  let tiltX = 0, tiltY = 0, targetX = 0, targetY = 0;
+
+  centerPanel.addEventListener('mousemove', (e) => {
+    const r = centerPanel.getBoundingClientRect();
+    const relX = (e.clientX - r.left) / r.width  - 0.5;
+    const relY = (e.clientY - r.top)  / r.height - 0.5;
+    targetY =  relX * 18;
+    targetX = -relY * 12;
+  });
+  centerPanel.addEventListener('mouseleave', () => { targetX = 0; targetY = 0; });
+
+  function animTilt() {
+    tiltX += (targetX - tiltX) * 0.08;
+    tiltY += (targetY - tiltY) * 0.08;
+    if (wrap3d && !wrap3d.style.animation) {
+      wrap3d.style.transform = `rotateX(${tiltX.toFixed(2)}deg) rotateY(${tiltY.toFixed(2)}deg)`;
+    }
+    requestAnimationFrame(animTilt);
+  }
+  animTilt();
+})();
+
+// ══════════════════════════════════════════════════════════════
+// 🥚  EASTER EGGS
+// ══════════════════════════════════════════════════════════════
+function showEasterMsg(text, sub, duration) {
+  const msg = document.getElementById('easter-msg');
+  document.getElementById('easter-text').textContent = text;
+  document.getElementById('easter-sub').textContent = sub || '';
+  msg.classList.add('show');
+  setTimeout(() => msg.classList.remove('show'), duration || 3000);
+}
+
+// ─── 1. KONAMI CODE → pluie de bougies ─────────────────────────────────
+(function konamiEaster() {
+  const seq = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
+  let pos = 0;
+  document.addEventListener('keydown', (e) => {
+    if (e.key === seq[pos]) { pos++; if (pos === seq.length) { pos = 0; triggerKonami(); } }
+    else pos = e.key === seq[0] ? 1 : 0;
+  });
+  function triggerKonami() {
+    showEasterMsg('🕯️ Rituel Scentora activé 🕯️', 'La pluie de bougies commence…', 5000);
+    const emojis = ['🕯️','✨','🌟','🔥','💫','🌸'];
+    for (let i = 0; i < 60; i++) {
+      setTimeout(() => {
+        const el = document.createElement('div');
+        el.className = 'konami-candle';
+        el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+        el.style.cssText = `left:${Math.random()*100}vw;top:-40px;font-size:${1+Math.random()*2}rem;animation-duration:${1.5+Math.random()*2.5}s`;
+        document.body.appendChild(el);
+        el.addEventListener('animationend', () => el.remove());
+      }, i * 80);
+    }
+  }
+})();
+
+// ─── 2. CLIC FRÉNÉTIQUE x20 en 2s → Mode Rituel 3D + bonus ────────────
+(function ritualEaster() {
+  const times = [];
+  document.getElementById('candle-btn').addEventListener('click', () => {
+    const now = Date.now();
+    times.push(now);
+    while (times.length && now - times[0] > 2000) times.shift();
+    if (times.length >= 20) { times.length = 0; triggerRitual(); }
+  });
+  function triggerRitual() {
+    showEasterMsg('🔥 Mode Rituel 🔥', "La bougie s'éveille…", 2500);
+    const w = document.getElementById('candle-3d-wrap');
+    w.style.animation = 'ritual-spin 1.2s cubic-bezier(0.4,0,0.2,1) forwards';
+    const old = g.cpc; g.cpc *= 10;
+    toast('🔥 ×10 bougies pendant 5 secondes !');
+    setTimeout(() => { w.style.animation = ''; g.cpc = old; }, 5000);
+  }
+})();
+
+// ─── 3. Taper "SCENTORA" → animation logo secret ───────────────────────
+(function scentoraTyoe() {
+  const word = 'scentora'; let buf = '';
+  document.addEventListener('keydown', (e) => {
+    if (e.key.length === 1) {
+      buf = (buf + e.key.toLowerCase()).slice(-word.length);
+      if (buf === word) { buf = ''; triggerScentora(); }
+    }
+  });
+  function triggerScentora() {
+    const el = document.querySelector('.logo-word');
+    if (el) { el.classList.remove('logo-secret-anim'); void el.offsetWidth; el.classList.add('logo-secret-anim'); el.addEventListener('animationend', () => el.classList.remove('logo-secret-anim'), {once:true}); }
+    showEasterMsg('✨ La Maison Scentora vous salue ✨', 'La Neuveville, since ever', 3500);
+  }
+})();
+
+// ─── 4. IDLE 30s → la bougie "pleure" de la cire ──────────────────────
+(function idleEaster() {
+  let lastClick = Date.now(), hasCried = false;
+  document.getElementById('candle-btn').addEventListener('click', () => {
+    lastClick = Date.now(); hasCried = false;
+    document.querySelectorAll('.wax-tear').forEach(el => el.remove());
+  });
+  setInterval(() => {
+    if (Date.now() - lastClick > 30000 && !hasCried) { hasCried = true; startCrying(); }
+  }, 1000);
+  function startCrying() {
+    const btn = document.getElementById('candle-btn');
+    const cp  = document.getElementById('center-panel');
+    const br = btn.getBoundingClientRect(), cr = cp.getBoundingClientRect();
+    showEasterMsg("La bougie s'ennuie…", 'Elle attend votre souffle', 2500);
+    let n = 0;
+    const iv = setInterval(() => {
+      if (n++ >= 5) { clearInterval(iv); return; }
+      const tear = document.createElement('div');
+      tear.className = 'wax-tear';
+      tear.style.cssText = `left:${(br.left-cr.left+br.width/2)+(Math.random()*20-10)}px;top:${br.top-cr.top+60}px;height:${12+Math.random()*10}px`;
+      cp.appendChild(tear);
+      tear.addEventListener('animationend', () => tear.remove());
+    }, 400);
+  }
+})();
+
+// ─── 5. 1000 CLICS TOTAUX → crâne fantôme traverse l'écran ────────────
+(function skullEaster() {
+  let done = false;
+  setInterval(() => {
+    if (!done && g.totalClicks >= 1000) {
+      done = true;
+      showEasterMsg("💀 L'Alchimiste vous observe 💀", '1 000 souffles de flamme', 3000);
+      const skull = document.createElement('div');
+      skull.className = 'skull-ghost'; skull.textContent = '💀';
+      document.body.appendChild(skull);
+      skull.addEventListener('animationend', () => skull.remove());
+    }
+  }, 500);
+})();
+
+// ─── 6. DOUBLE-CLIC → flamme géante momentanée + bougie bonus ─────────
+(function doubleClickEaster() {
+  let last = 0;
+  document.getElementById('candle-btn').addEventListener('click', () => {
+    const now = Date.now();
+    if (now - last < 300) {
+      const fl = document.getElementById('flame');
+      if (fl) {
+        fl.style.transition = 'transform 0.15s ease';
+        fl.style.transform = 'scale(2.8) translateY(-8px)';
+        setTimeout(() => { fl.style.transform = ''; setTimeout(() => { fl.style.transition = ''; }, 300); }, 400);
+      }
+      g.cookies += g.cpc; g.totalCookies += g.cpc;
+    }
+    last = now;
+  });
+})();
 </script>
 </body>
 </html>
